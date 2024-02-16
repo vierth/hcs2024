@@ -39,5 +39,10 @@ for word in unique_words:
     total_loops += 1
     if word != " ":
         word_frequencies[word] = words.count(word)
+# sort the keys by their values
 
-print(word_frequencies)
+sorted_words = sorted(word_frequencies, key=word_frequencies.get, reverse=True)
+print(sorted_words)
+
+for word in sorted_words[:10]:
+    print(word, word_frequencies[word])

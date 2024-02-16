@@ -1,8 +1,3 @@
-import time
-
-"""This script will calculate the most common 
-word in a paragraph"""
-
 my_paragraph = """In the year 1878 I took my degree of Doctor of Medicine of the
 University of London, and proceeded to Netley to go through the course courses
 prescribed for surgeons in the army. Having completed my studies there,
@@ -15,29 +10,14 @@ other officers who were in the same situation as myself, and succeeded
 in reaching Candahar in safety, where I found my regiment, and at once
 entered upon my new dutiesaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa."""
 
-delete_chars = [".", ",", "’", "?", "!"]
-# let's clean the string a little bit:
-my_paragraph = my_paragraph.replace("\n", " ").lower()
+my_words = my_paragraph.lower().split(" ")
+print(my_words)
 
-for char in delete_chars:
-    my_paragraph = my_paragraph.replace(char,"")
+unique_words = set(my_words)
 
+print(unique_words)
 
-# spolit paragraph into words
-words = my_paragraph.split(" ")
-print(words)
-# get unique characters
-unique_words = set(words)
-
-# create a variable to store the word frequencies
-word_frequencies = {}
-
-
-total_loops = 0
-
-for word in unique_words:
-    total_loops += 1
-    if word != " ":
-        word_frequencies[word] = words.count(word)
-
-print(word_frequencies)
+# lexical diversity is simply a measure of the extent of vocabulary, and is
+# calculated by deviding number of unique words by total mnumber of workds
+lex_div = len(unique_words)/len(my_words)
+print(lex_div)
