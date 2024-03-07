@@ -3,6 +3,7 @@ import re
 
 with open('analects.txt', 'r', encoding='utf8') as rf:
     text = rf.read()
+    
 text = text[:text.find("*** END OF THE PROJECT ")]
 
 
@@ -28,6 +29,7 @@ for i, book in enumerate(book_divs):
 
         
         chapter_divs = chapter_divs[1:]
+        #[match, text, match, text, match, text]
         for j, chapter in enumerate(chapter_divs):
             if j % 2 == 0:
                 chapter_title = chapter
