@@ -4,16 +4,18 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 from scipy.cluster.hierarchy import linkage, dendrogram
 
-import matplotlib.pyplot as plt
-import jieba
+from sklearn.decomposition import PCA
 
-def tokenize_chinese(input):
-    return jieba.cut(input)
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
 ignore_files = [".DS_Store"]
 
 titles = []
+authors = []
 texts = []
+
 
 for root, dirs, files in os.walk('corpus'):
     files = [f for f in files if f not in ignore_files]
@@ -22,8 +24,12 @@ for root, dirs, files in os.walk('corpus'):
         with open(os.path.join(root, f), 'r', encoding='utf8') as rf:
             text = rf.read()
 
+        file_info = f[:-4].split("_")
+        author = file_info[0]
+        title = file_info[1]
         texts.append(text)
-        titles.append(f[:-4])
+        authors.append(author)
+        titles.append(title)
 
 
 '''
@@ -37,17 +43,27 @@ analyzer = "char" or "word"
 
 # vectorizer = CountVectorizer()
 
-vectorizer = TfidfVectorizer(use_idf=False)
+vectorizer = TfidfVectorizer(use_idf=False, vocabulary = ["he", "him", "his", "her", "hers", "she","them", "they","theirs"])
 
 frequencies = vectorizer.fit_transform(texts)
 
+pca = PCA(n_components=2)
 
-# distances = euclidean_distances(frequencies)
-similarties = cosine_similarity(frequencies)
+my_pca = pca.fit_transform(frequencies.toarray())
+frequencies.toarray().shape
+print(frequencies.toarray().shape, my_pca.shape)
 
-print(similarties)
-linkages = linkage(similarties, 'ward')
+print(my_pca)
+pc1 = my_pca[:,0]
+pc2 = my_pca[:,1]
+print(pc1)
+print(pc2)
 
-dendrogram(linkages, labels=titles, orientation='right', leaf_font_size=8, leaf_rotation=45)
+data = {"authors":authors, "pc1": pc1, "pc2": pc2, "titles":titles}
+
+df = pd.DataFrame(data)
+
+sns.scatterplot(df, x='pc1', y='pc2', hue='authors')
+
 
 plt.show()
