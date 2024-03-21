@@ -1,5 +1,9 @@
 import gensim, nltk, os
 import logging
+import pandas as pd
+import plotly.express as px
+from sklearn.decomposition import PCA
+
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -11,14 +15,11 @@ def chunkify(text, length):
         chunks.append(" ".join(tokenized_text[i*length:(i+1)*length]))
     return chunks
 
-
-
 ignore_files = [".DS_Store"]
 
 titles = []
 authors = []
 texts = []
-
 
 for root, dirs, files in os.walk('corpus'):
     files = [f for f in files if f not in ignore_files]
@@ -47,23 +48,29 @@ lemmatizer = nltk.WordNetLemmatizer()
 refined_texts = []
 
 for chunk in texts:
-    tokenized = nltk.word_tokenize(chunk)
-    refined = [lemmatizer.lemmatize(word).lower() for word in tokenized if word.isalnum()]
-    refined_texts.append(refined)
+    sentences = nltk.sent_tokenize(chunk)
+    for sent in sentences:
+        tokenized = nltk.word_tokenize(sent)
+        refined = [lemmatizer.lemmatize(word).lower() for word in tokenized if word.isalnum()]
+        refined_texts.append(refined)
 
-corpus_dictionary = gensim.corpora.Dictionary(refined_texts)
+print(refined_texts[0])
 
+vec_model = gensim.models.Word2Vec(sentences=refined_texts, vector_size=100, window=5, sg=0)
 
+words = []
+vecs = []
 
-# no below number of documents (integer)
-# no above number of documents (float from 0 to 1) in percent
-corpus_dictionary.filter_extremes(no_below=2, no_above=.9)
+for word in vec_model.wv.index_to_key:
+    words.append(word)
+    vecs.append(vec_model.wv[word])
+    
+pca = PCA()
 
-# prep corpus for gensim
-processed_corpus = [corpus_dictionary.doc2bow(text) for text in refined_texts]
+my_pca = pca.fit_transform(vecs)
 
-lda = gensim.models.ldamodel.LdaModel(processed_corpus, num_topics=10, id2word=corpus_dictionary,iterations=500, passes=50)
+data = {"words":words, "pc1":my_pca[:,0], 'pc2':my_pca[:,1]}
+df = pd.DataFrame(data)
 
-topics = lda.show_topics()
-for topic in topics:
-    print(topic)
+fig = px.scatter(df, x="pc1", y="pc2", text="words")
+fig.show()
