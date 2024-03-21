@@ -41,7 +41,7 @@ analyzer = "char" or "word"
 
 # vectorizer = CountVectorizer()
 
-vectorizer = TfidfVectorizer(use_idf=False, vocabulary = ["he", "him", "his", "her", "hers", "she","them", "they","theirs"])
+vectorizer = TfidfVectorizer(use_idf=False, max_features=1000)
 
 frequencies = vectorizer.fit_transform(texts)
 
@@ -68,5 +68,7 @@ df = pd.DataFrame(data)
 
 sns.scatterplot(df, x='pc1', y='pc2', hue='authors')
 
+for i,word in enumerate(vocabulary):
+    plt.annotate(word, xy=(loadings[0,i], loadings[1,i]))
 
 plt.show()

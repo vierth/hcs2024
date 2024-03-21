@@ -8,6 +8,26 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 
+
+def chunkify(text, length):
+    chunks = []
+
+    # split into words
+    tokenized_text = text.split(" ")
+
+    # calculate number of loops
+    loops = len(tokenized_text)//length
+
+    # split into loop number of chunks
+    for i in range(0, loops):
+
+        # loop 1 [0*length to 1*legnth]
+        # loop 2 [1*length to 2*length]
+        chunks.append(" ".join(tokenized_text[i*length:(i+1)*length]))
+    return chunks
+
+
+
 ignore_files = [".DS_Store"]
 
 titles = []
@@ -25,9 +45,13 @@ for root, dirs, files in os.walk('corpus'):
         file_info = f[:-4].split("_")
         author = file_info[0]
         title = file_info[1]
-        texts.append(text)
-        authors.append(author)
-        titles.append(title)
+
+        chunks = chunkify(text, 1000)
+
+        for chunk in chunks:
+            texts.append(chunk)
+            authors.append(author)
+            titles.append(title)
 
 
 '''
@@ -39,9 +63,10 @@ tokenizer = customfunction
 analyzer = "char" or "word"
 '''
 
+
 # vectorizer = CountVectorizer()
 
-vectorizer = TfidfVectorizer(use_idf=False, vocabulary = ["he", "him", "his", "her", "hers", "she","them", "they","theirs"])
+vectorizer = TfidfVectorizer(use_idf=False, max_features=100)
 
 frequencies = vectorizer.fit_transform(texts)
 
@@ -68,5 +93,7 @@ df = pd.DataFrame(data)
 
 sns.scatterplot(df, x='pc1', y='pc2', hue='authors')
 
+for i,word in enumerate(vocabulary):
+    plt.annotate(word, xy=(loadings[0,i], loadings[1,i]))
 
 plt.show()
